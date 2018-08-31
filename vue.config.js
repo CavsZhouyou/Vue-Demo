@@ -3,7 +3,7 @@
  * @Descriptions: 项目配置webpack配置文件
  * @Date: 2018-08-25 20:17:16 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 22:54:54
+ * @Last Modified time: 2018-08-31 20:56:24
  */
 
 
@@ -24,7 +24,8 @@ module.exports = {
     hotOnly: false,
     proxy: {
       "/mes/*": {
-        target: "http://localhost:80",
+        // target: "http://localhost:80",
+        target: "http://116.196.115.175:80",
         secure: false
       },
     },

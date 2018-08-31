@@ -185,8 +185,8 @@ $logo_url: "../assets/images/logo.png";
 
   /* logo 图片 */
   background-color: $background_color;
-  background-image: url($logo_url);
-  background-position: -10px;
+  // background-image: url($logo_url);
+  // background-position: -10px;
   background-size: 250px 60px;
 }
 

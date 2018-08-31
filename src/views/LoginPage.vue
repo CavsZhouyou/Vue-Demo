@@ -17,7 +17,7 @@
                justify="center">
           <a-col :span="6">
             <div class="content">
-              <h2 class="title">东方地毯后台管理系统</h2>
+              <h2 class="title">后台管理系统</h2>
               <!-- 登录表单 -->
               <a-form @submit="login"
                       :autoFormCreate="(form)=>{this.form = form}">
@@ -58,7 +58,7 @@
       </a-layout-content>
       <!-- 网站信息 -->
       <a-layout-footer class="footer">
-        Copyright(c) 2005-2018 东方地毯 All Rights Reserved
+        Copyright(c) 2005-2018 威软实验室 All Rights Reserved
       </a-layout-footer>
     </a-layout>
   </div>
