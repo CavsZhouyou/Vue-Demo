@@ -5,7 +5,7 @@
  *   1. 如果员工角色为办事处员工，后端未返回所属办事处的id
  * @Date: 2018-08-26 23:09:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:21:00
+ * @Last Modified time: 2018-10-05 20:29:54
  */
 
 
@@ -87,12 +87,12 @@
                                :value='item.roleCode'>{{item.name}}</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item v-if="isOfficeShow"
+          <a-form-item v-show="isOfficeShow"
                        label='所属办事处：'
                        :labelCol="{ span: 5 }"
                        :wrapperCol="{ span: 12 }"
                        fieldDecoratorId="officeId"
-                       :fieldDecoratorOptions="{rules: [{ required: true, message: '请选择所属办事处！' }]}">
+                       :fieldDecoratorOptions="{rules: [{ required: isOfficeShow, message: '请选择所属办事处！' }]}">
             <a-select placeholder='请选择所属办事处'
                       v-model="officeId">
               <a-select-option v-for="(item, index) in officeList"
@@ -128,7 +128,7 @@ const OFFICE_CODE = "04000000",
 
 export default {
   name: "PersonnelModifyPage",
-  data: function() {
+  data() {
     return {
       name: "",
       number: "",
@@ -153,11 +153,11 @@ export default {
     /**
      * @description 判断角色是否为办事处员工
      */
-    isOfficeShow: function() {
+    isOfficeShow() {
       return this.roleCode == OFFICE_CODE;
     }
   },
-  mounted: function() {
+  mounted() {
     // 获取员工信息
     this.getPersonnelData();
   },
@@ -165,43 +165,46 @@ export default {
     /**
      * @description 获取员工信息
      */
-    getPersonnelData: function() {
-      const self = this;
-      var postData = {
+    getPersonnelData() {
+      let postData = {
         number: this.$route.query.number,
         workerId: this.userID
       };
 
       this.$axios
         .post(urls.MES_GET_WORKER_INFO_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
           if (data.success) {
             // 获取员工信息
-            self.id = data.data.id;
-            self.name = data.data.name;
-            self.number = data.data.number;
-            self.roleCode = data.data.roles[0].roleCode;
-            self.sex = data.data.sex;
-            self.age = data.data.age;
-            self.registerTime = moment(data.data.registerTime); // 格式日期后传入表单
+            this.id = data.data.id;
+            this.name = data.data.name;
+            this.number = data.data.number;
+            this.roleCode = data.data.roles[0].roleCode;
+            this.sex = data.data.sex;
+            this.age = data.data.age;
+            this.officeId = data.data.officeId;
+            this.registerTime = moment(data.data.registerTime); // 格式日期后传入表单
 
             // 更新表单数据
-            self.setPersonnelFormData();
+            this.setPersonnelFormData();
           }
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
         });
     },
 
     /**
      * @description 设置表单数据
      */
-    setPersonnelFormData: function() {
+    setPersonnelFormData() {
       this.form.setFieldsValue({
         name: this.name,
         number: this.number,
         roleCode: this.roleCode,
-        // officeId: this.officeId, // 因为后端未返回，所以暂时注释掉
+        officeId: this.officeId,
         sex: this.sex,
         age: this.age,
         registerTime: this.registerTime
@@ -211,11 +214,11 @@ export default {
     /**
      * @description 修改员工信息
      */
-    modifyPersonnel: function() {
+    modifyPersonnel() {
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         id: this.id,
         name: this.name,
         number: this.number,
@@ -229,7 +232,7 @@ export default {
         //registerTime: this.registerTime,
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -238,8 +241,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_MODIFY_WORKER_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     self.$message.success("修改成功！");
@@ -248,6 +251,12 @@ export default {
                     self.$message.error("修改失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });

@@ -1,11 +1,11 @@
 /*
  * @Author: zhouyou@werun 
- * @Descriptions: 项目配置webpack配置文件
- * @Date: 2018-08-25 20:17:16 
- * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-31 20:56:24
+ * @Descriptions: 项目配置webpack配置文件 
+ * @TodoList: 无
+ * @Date: 2018-10-05 18:55:44 
+ * @Last Modified by:   zhouyou@werun 
+ * @Last Modified time: 2018-10-05 18:55:44 
  */
-
 
 
 module.exports = {

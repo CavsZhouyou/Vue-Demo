@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 22:37:17 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:13:47
+ * @Last Modified time: 2018-10-05 19:55:40
  */
 
 <template>
@@ -80,7 +80,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "MachineModifyPage",
-  data: function() {
+  data() {
     return {
       machineName: "",
       macAddress: "",
@@ -93,7 +93,7 @@ export default {
   computed: {
     ...mapGetters(["userID", "processList", "machineTypeList"])
   },
-  mounted: function() {
+  mounted() {
     // 获取机器信息
     this.getMachine();
   },
@@ -101,38 +101,40 @@ export default {
     /**
      * @description 获取机器信息
      */
-    getMachine: function() {
-      const self = this;
-      var postData = {
+    getMachine() {
+      let postData = {
         machineId: this.$route.query.machineId,
         workerId: this.userID
       };
 
       this.$axios
         .post(urls.MES_GET_MACHINE_INFO_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
           if (data.success) {
             // 赋值机器信息
-            self.machineName = data.data.machineCode;
-            self.macAddress = data.data.mac;
-            self.processCode = data.data.process;
-            self.machineTypeCode = data.data.type;
-            self.setMchineFormData();
+            this.machineName = data.data.machineCode;
+            this.macAddress = data.data.mac;
+            this.processCode = data.data.process;
+            this.machineTypeCode = data.data.type;
+            this.setMchineFormData();
           }
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
         });
     },
 
     /**
      * @description 修改机器信息
      */
-    modifyMachine: function() {
+    modifyMachine() {
       // 阻止表单默认提交行为
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         machineName: this.machineName,
         macAddress: this.macAddress,
         processCode: this.processCode,
@@ -141,7 +143,7 @@ export default {
         machineId: this.$route.query.machineId
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -150,8 +152,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_MODIFY_MACHINE_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     self.$message.success("修改成功！");
@@ -160,6 +162,12 @@ export default {
                     self.$message.error("修改失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });
@@ -170,7 +178,7 @@ export default {
     /**
      * @description 设置表单数据
      */
-    setMchineFormData: function() {
+    setMchineFormData() {
       this.form.setFieldsValue({
         machineName: this.machineName,
         macAddress: this.macAddress,

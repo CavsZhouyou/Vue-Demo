@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 23:01:40 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:15:15
+ * @Last Modified time: 2018-10-05 20:25:35
  */
 
 <template>
@@ -105,7 +105,7 @@ const columns = [
 
 export default {
   name: "PersonnelListPage",
-  data: function() {
+  data() {
     return {
       data: [],
       pagination: {
@@ -124,7 +124,7 @@ export default {
   computed: {
     ...mapGetters(["userID"])
   },
-  mounted: function() {
+  mounted() {
     // 获取列表内容
     this.fetch();
   },
@@ -135,7 +135,7 @@ export default {
      * @param {Object} filters 过滤条件
      * @param {Object} sorter 排序条件
      */
-    handleTableChange: function(pagination, filters, sorter) {
+    handleTableChange(pagination = {}, filters = {}, sorter = {}) {
       this.pagination.pageSize = pagination.pageSize;
       this.pagination.current = pagination.current;
       this.fetch();
@@ -144,9 +144,8 @@ export default {
     /**
      * @description 获取列表数据
      */
-    fetch: function() {
-      const self = this;
-      var postData = {
+    fetch() {
+      let postData = {
         start: this.pagination.current,
         limit: this.pagination.pageSize,
         dir: "desc",
@@ -155,16 +154,22 @@ export default {
 
       this.loading = true;
 
-      self.$axios
+      this.$axios
         .post(urls.MES_GET_ALL_WORKERS_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
-          self.loading = false;
+          this.loading = false;
 
           // 更新列表数据
-          self.data = data.result;
-          self.pagination.total = data.totalCount;
+          this.data = data.result;
+          this.pagination.total = data.totalCount;
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            this.loading = false;
+          }, 1000);
         });
     },
 
@@ -172,7 +177,7 @@ export default {
      * @description 查看员工头像
      * @param {String} protrait 头像图片地址
      */
-    viewProtrait: function(portrait) {
+    viewProtrait(portrait = "") {
       this.portrait = portrait;
       this.visible = true;
     },
@@ -188,9 +193,9 @@ export default {
      * @description 删除员工
      * @param {Integar} id 员工id
      */
-    deletePersonnel: function(id) {
+    deletePersonnel(id = 0) {
       const self = this;
-      var postData = {
+      let postData = {
         deleteWorkerId: id,
         workerId: this.userID
       };
@@ -200,8 +205,8 @@ export default {
         onOk() {
           self.$axios
             .post(urls.MES_DELETE_WORKER_URL, qs.stringify(postData))
-            .then(function(response) {
-              var data = response.data;
+            .then(response => {
+              let data = response.data;
 
               if (data.success) {
                 self.$message.success("删除成功！");
@@ -211,6 +216,9 @@ export default {
               } else {
                 self.$message.error("删除失败！");
               }
+            })
+            .catch(error => {
+              self.$message.error("网络错误！");
             });
         }
       });
@@ -220,7 +228,7 @@ export default {
      * @description 跳转到员工编辑页面
      * @param {String} number 员工号
      */
-    modifyPersonnel: function(number) {
+    modifyPersonnel(number = "") {
       this.$router.push({
         path: paths.MES_PERSONNEL_MODIFY_PAGE_PATH,
         query: {

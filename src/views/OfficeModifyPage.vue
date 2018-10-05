@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 21:51:17 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:57:50
+ * @Last Modified time: 2018-10-05 20:14:53
  */
 
 <template>
@@ -42,7 +42,7 @@
                         @change="onChange"
                         :loadData="loadData"
                         placeholder="请选择办事处地址！"
-                        changeOnSelect/>
+                        changeOnSelect />
           </a-form-item>
           <a-form-item :wrapperCol="{ span: 12, offset: 5 }">
             <a-button class="commit"
@@ -61,12 +61,12 @@
 <script>
 import qs from "qs";
 import * as urls from "../js/post_urls.js";
-import { mapGetters, mapActions } from "vuex";
 import * as paths from "../js/router_paths.js";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "AddOfficePage",
-  data: function() {
+  data() {
     return {
       name: this.$route.query.name,
       number: this.$route.query.seriesNumber,
@@ -92,7 +92,7 @@ export default {
       this.setDefaultCityList();
     }
   },
-  mounted: function() {
+  mounted() {
     // 设置地址数据
     this.options = this.provinceList;
 
@@ -109,7 +109,7 @@ export default {
      * @description 更新地址数据
      * @param {Array} value 选中地址数组
      */
-    onChange: function(value) {
+    onChange(valu = []) {
       this.provinceId = value[0];
       this.cityId = value[1];
     },
@@ -118,10 +118,9 @@ export default {
      * @description 加载城市列表
      * @param {Array} selectedOptions 选中选项
      */
-    loadData: function(selectedOptions) {
-      const self = this;
+    loadData(selectedOptions = []) {
       const targetOption = selectedOptions[selectedOptions.length - 1]; // 获取最后一次选中项
-      var postData = {
+      let postData = {
         workerId: this.userID,
         provinceId: targetOption.value
       };
@@ -130,31 +129,37 @@ export default {
       // 请求城市列表数据
       this.$axios
         .post(urls.MES_GET_CITY_LIST_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data,
+        .then(response => {
+          let data = response.data,
             cityList = [];
 
           if (data.success) {
             targetOption.loading = false;
 
             // 格式化数据
-            cityList = self.formatAddressList(data.data.addressList);
+            cityList = this.formatAddressList(data.data.addressList);
 
             // 更新下拉项数据
             targetOption.children = cityList;
-            self.options = [...self.options];
+            this.options = [...self.options];
           }
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            targetOption.loading = false;
+          }, 1000);
         });
     },
 
     /**
      * @description 修改办事处信息
      */
-    modifyOffice: function() {
+    modifyOffice() {
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         officeName: this.name,
         seriesNumber: this.number,
         provinceId: this.provinceId,
@@ -163,7 +168,7 @@ export default {
         officeId: this.$route.query.id
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -172,8 +177,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_MODIFY_OFFICE_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     // 更新办事处列表信息
@@ -185,6 +190,12 @@ export default {
                     self.$message.error("修改失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });
@@ -195,9 +206,8 @@ export default {
     /**
      * @description 获取设置默认城市列表
      */
-    setDefaultCityList: function() {
-      const self = this;
-      var postData = {
+    setDefaultCityList() {
+      let postData = {
         workerId: 1,
         provinceId: this.$route.query.provinceId
       };
@@ -205,24 +215,27 @@ export default {
       // 请求城市列表数据
       this.$axios
         .post(urls.MES_GET_CITY_LIST_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data,
+        .then(response => {
+          let data = response.data,
             cityList = [];
 
           if (data.success) {
             // 格式化数据
-            cityList = self.formatAddressList(data.data.addressList);
+            cityList = this.formatAddressList(data.data.addressList);
 
             // 找到选中项，添加二级菜单
-            self.addChildrenOptions(cityList);
+            this.addChildrenOptions(cityList);
           }
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
         });
     },
 
     /**
      * @description 设置表单数据
      */
-    setOfficeFormData: function() {
+    setOfficeFormData() {
       this.form.setFieldsValue({
         name: this.$route.query.name,
         number: this.$route.query.seriesNumber,
@@ -238,16 +251,15 @@ export default {
      * @param {Object} originalData 原始数据
      * @return {Object} addressList 格式化后数据
      */
-    formatAddressList: function(originalData) {
-      var addressList = [];
+    formatAddressList(originalData = {}) {
+      let addressList = [];
 
-      originalData.forEach(function(item, index) {
-        var address = {
-          value: "",
-          label: ""
+      originalData.forEach((item, index) => {
+        let address = {
+          value: item.id.toString(),
+          label: item.name
         };
-        address.value = item.id.toString();
-        address.label = item.name;
+
         addressList.push(address);
       });
 
@@ -258,11 +270,9 @@ export default {
      * @description 找到选中项，添加二级菜单
      * @param {Array} data 原始数据
      */
-    addChildrenOptions: function(children) {
-      const self = this;
-
-      this.options.forEach(function(item, index) {
-        if (item.value == self.$route.query.provinceId) {
+    addChildrenOptions(children = []) {
+      this.options.forEach(item, index => {
+        if (item.value == this.$route.query.provinceId) {
           item.children = children;
         }
       });

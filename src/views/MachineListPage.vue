@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 22:25:52 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 20:52:23
+ * @Last Modified time: 2018-10-05 19:50:44
  */
 
 <template>
@@ -82,7 +82,7 @@ const columns = [
 
 export default {
   name: "MachineListPage",
-  data: function() {
+  data() {
     return {
       data: [],
       pagination: {
@@ -99,7 +99,7 @@ export default {
   computed: {
     ...mapGetters(["userID"])
   },
-  mounted: function() {
+  mounted() {
     // 获取列表内容
     this.fetch();
   },
@@ -110,7 +110,7 @@ export default {
      * @param {Object} filters 过滤条件
      * @param {Object} sorter 排序条件
      */
-    handleTableChange: function(pagination, filters, sorter) {
+    handleTableChange(pagination = {}, filters = {}, sorter = {}) {
       this.pagination.pageSize = pagination.pageSize;
       this.pagination.current = pagination.current;
       this.fetch();
@@ -119,9 +119,8 @@ export default {
     /**
      * @description 获取列表数据
      */
-    fetch: function() {
-      const self = this;
-      var postData = {
+    fetch() {
+      let postData = {
         start: this.pagination.current,
         limit: this.pagination.pageSize,
         dir: "desc",
@@ -130,16 +129,22 @@ export default {
 
       this.loading = true;
 
-      self.$axios
+      this.$axios
         .post(urls.MES_GET_MACHINE_PAGE_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
-          self.loading = false;
+          this.loading = false;
 
           // 更新列表数据
-          self.data = data.result;
-          self.pagination.total = data.totalCount;
+          this.data = data.result;
+          this.pagination.total = data.totalCount;
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            this.loading = false;
+          }, 1000);
         });
     },
 
@@ -147,9 +152,9 @@ export default {
      * @description 删除机器
      * @param {Integar} machineId 机器 id
      */
-    deleteMachine: function(machineId) {
+    deleteMachine: function(machineId = 0) {
       const self = this;
-      var postData = {
+      let postData = {
         machineId: machineId,
         workerId: this.userID
       };
@@ -159,8 +164,8 @@ export default {
         onOk() {
           self.$axios
             .post(urls.MES_DELETE_MACHINE_URL, qs.stringify(postData))
-            .then(function(response) {
-              var data = response.data;
+            .then(response => {
+              let data = response.data;
 
               if (data.success) {
                 self.$message.success("删除成功！");
@@ -170,6 +175,9 @@ export default {
               } else {
                 self.$message.error("删除失败！");
               }
+            })
+            .catch(error => {
+              self.$message.error("网络错误！");
             });
         }
       });
@@ -179,7 +187,7 @@ export default {
      * @description 跳转到机器编辑页面
      * @param {Integar} machineId 机器 id
      */
-    modifyMachine: function(machineId) {
+    modifyMachine(machineId = 0) {
       this.$router.push({
         path: paths.MES_MACHINE_MODIFY_PAGE_PATH,
         query: {

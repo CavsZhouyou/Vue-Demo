@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 22:11:27 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:11:25
+ * @Last Modified time: 2018-10-05 19:45:36
  */
 
 
@@ -81,7 +81,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "MachineAddPage",
-  data: function() {
+  data() {
     return {
       machineName: "",
       macAddress: "",
@@ -98,12 +98,12 @@ export default {
     /**
      * @description 添加机器
      */
-    addMachine: function() {
+    addMachine() {
       // 阻止表单默认提交行为
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         machineName: this.machineName,
         macAddress: this.macAddress,
         processCode: this.processCode,
@@ -111,7 +111,7 @@ export default {
         workerId: this.userID
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -120,8 +120,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_ADD_MACHINE_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     self.$message.success("添加成功！");
@@ -130,6 +130,12 @@ export default {
                     self.$message.error("添加失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });

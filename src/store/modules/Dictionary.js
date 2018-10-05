@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-27 20:10:57 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 19:25:22
+ * @Last Modified time: 2018-10-05 19:03:58
  */
 
 import qs from "qs";
@@ -61,7 +61,7 @@ const HomePage = {
       commit,
       state
     }) {
-      var postData = {
+      let postData = {
         workerId: 1,
         parentCode: "17000000"
       };
@@ -69,7 +69,7 @@ const HomePage = {
       axios
         .post(urls.MES_GET_DIC_LIST_URL, qs.stringify(postData))
         .then(function (response) {
-          var data = response.data;
+          let data = response.data;
 
           if (data.success) {
             // 赋值所属流程字典码
@@ -88,7 +88,7 @@ const HomePage = {
       state
     }) {
       const self = this;
-      var postData = {
+      let postData = {
         workerId: 1,
         parentCode: "05010000"
       };
@@ -96,7 +96,7 @@ const HomePage = {
       axios
         .post(urls.MES_GET_DIC_LIST_URL, qs.stringify(postData))
         .then(function (response) {
-          var data = response.data;
+          let data = response.data;
 
           if (data.success) {
             // 赋值产品字典码
@@ -113,14 +113,14 @@ const HomePage = {
       commit,
       state
     }) {
-      var postData = {
+      let postData = {
         workerId: 1,
       };
 
       axios
         .post(urls.MES_GET_WORKER_ROLE_URL, qs.stringify(postData))
         .then(function (response) {
-          var data = response.data;
+          let data = response.data;
 
           if (data.success) {
             // 赋值角色字典码
@@ -137,14 +137,14 @@ const HomePage = {
       commit,
       state
     }) {
-      var postData = {
+      let postData = {
         workerId: 1,
       };
 
       axios
         .post(urls.MES_GET_OFFICE_PAGE_URL, qs.stringify(postData))
         .then(function (response) {
-          var data = response.data;
+          let data = response.data;
 
           // 赋值办事字典码
           commit(types.GET_OFFICE_LIST, data.result);
@@ -160,7 +160,7 @@ const HomePage = {
       commit,
       state
     }) {
-      var sexList = [{
+      let sexList = [{
         dicCode: '男',
         dicName: '男'
       }, {
@@ -180,7 +180,7 @@ const HomePage = {
       commit,
       state
     }) {
-      var postData = {
+      let postData = {
         workerId: 1,
         countryId: 1
       };
@@ -188,14 +188,14 @@ const HomePage = {
       axios
         .post(urls.MES_GET_PROVINCE_LIST_URL, qs.stringify(postData))
         .then(function (response) {
-          var data = response.data,
+          let data = response.data,
             provinceList = [];
 
           if (data.success) {
 
             // 格式化数据
             data.data.addressList.forEach(function (item, index) {
-              var province = {
+              let province = {
                 value: "",
                 label: "",
                 isLeaf: false,
@@ -220,7 +220,7 @@ const HomePage = {
       commit,
       state
     }) {
-      var designSeriesList = [{
+      let designSeriesList = [{
         dicCode: '01000000',
         dicName: '威尔顿'
       }, {

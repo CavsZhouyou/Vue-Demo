@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-25 23:36:42 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 20:49:21
+ * @Last Modified time: 2018-10-05 19:25:45
  */
 
 
@@ -111,7 +111,7 @@
                       enter-active-class="fadeInLeft"
                       leave-active-class="fadeOutRight"
                       mode="out-in">
-            <router-view/>
+            <router-view />
           </transition>
         </a-layout-content>
         <!-- 网站信息 -->
@@ -132,7 +132,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "HomePage",
-  data: function() {
+  data() {
     return {
       collapsed: false,
 
@@ -142,7 +142,7 @@ export default {
   computed: {
     ...mapGetters(["userName"])
   },
-  mounted: function() {
+  mounted() {
     // 获取字典信息
     this.getDictionaries();
   },
@@ -152,7 +152,7 @@ export default {
     /**
      * @description 退出登录
      */
-    logout: function() {
+    logout() {
       const self = this;
 
       this.$confirm({
@@ -185,8 +185,8 @@ $logo_url: "../assets/images/logo.png";
 
   /* logo 图片 */
   background-color: $background_color;
-  // background-image: url($logo_url);
-  // background-position: -10px;
+  background-image: url($logo_url);
+  background-position: -10px;
   background-size: 250px 60px;
 }
 

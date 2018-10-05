@@ -5,7 +5,7 @@
  *   1. 当前只测试威尔顿，因此 parentCode 暂时写死，后面需要修改回来
  * @Date: 2018-08-26 23:25:17 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 22:00:47
+ * @Last Modified time: 2018-10-05 19:38:24
  */
 
 
@@ -61,7 +61,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "DesignSeriesAddPage",
-  data: function() {
+  data() {
     return {
       type: "",
       seriesName: ""
@@ -74,17 +74,17 @@ export default {
     /**
      * @description 添加设计系列码
      */
-    addDesignSeries: function() {
+    addDesignSeries() {
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         parentCode: "01000000", //这里暂时写死
         seriesName: this.seriesName,
         workerId: this.userID
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -93,8 +93,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_ADD_DESIGN_SERIES_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     self.$message.success("添加成功！");
@@ -103,6 +103,12 @@ export default {
                     self.$message.error("添加失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });

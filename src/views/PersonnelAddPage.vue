@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 22:47:27 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:18:10
+ * @Last Modified time: 2018-10-05 20:22:01
  */
 
 <template>
@@ -135,7 +135,7 @@ const OFFICE_CODE = "04000000",
 
 export default {
   name: "PersonnelAddPage",
-  data: function() {
+  data() {
     return {
       name: "",
       number: "",
@@ -158,7 +158,7 @@ export default {
     /**
      * @description 判断角色是否为办事处员工
      */
-    isOfficeShow: function() {
+    isOfficeShow() {
       return this.roleCode == OFFICE_CODE;
     }
   },
@@ -166,11 +166,11 @@ export default {
     /**
      * @description 添加员工
      */
-    addPersonnel: function() {
+    addPersonnel() {
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         name: this.name,
         number: this.number,
         roleCode: this.roleCode,
@@ -183,7 +183,7 @@ export default {
         // registerTime: this.registerTime,
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -192,8 +192,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_ADD_WORKER_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     self.$message.success("添加成功！");
@@ -202,6 +202,12 @@ export default {
                     self.$message.error("添加失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });
@@ -227,9 +233,8 @@ export default {
     /**
      * @description 批量添加员工
      */
-    batchAddPersonnel: function() {
-      const self = this;
-      var formData = new FormData(),
+    batchAddPersonnel() {
+      let formData = new FormData(),
         file = this.fileList[0],
         config = {
           headers: { "Content-Type": "multipart/form-data" } // 设置请求头
@@ -241,15 +246,15 @@ export default {
 
       this.$axios
         .post(urls.MES_IMPORT_INFO_URL, formData, config)
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
           if (data.success) {
-            self.$message.success(data.message);
-            self.$router.push(paths.MES_PERSONNEL_LIST_PAGE_PATH);
+            this.$message.success(data.message);
+            this.$router.push(paths.MES_PERSONNEL_LIST_PAGE_PATH);
           } else {
-            self.$message.error(data.message);
-            self.fileList = [];
+            this.$message.error(data.message);
+            this.fileList = [];
           }
         });
     }

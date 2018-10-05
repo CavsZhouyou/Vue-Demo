@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 21:17:09 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:23:06
+ * @Last Modified time: 2018-10-05 20:07:08
  */
 
 <template>
@@ -37,8 +37,8 @@
 <script>
 import qs from "qs";
 import * as urls from "../js/post_urls.js";
-import { mapGetters, mapActions } from "vuex";
 import * as paths from "../js/router_paths.js";
+import { mapGetters, mapActions } from "vuex";
 
 const columns = [
   {
@@ -82,7 +82,7 @@ const columns = [
 
 export default {
   name: "OfficeListPage",
-  data: function() {
+  data() {
     return {
       data: [],
       pagination: {
@@ -101,7 +101,7 @@ export default {
   computed: {
     ...mapGetters(["userID"])
   },
-  mounted: function() {
+  mounted() {
     // 获取列表内容
     this.fetch();
   },
@@ -114,7 +114,7 @@ export default {
      * @param {Object} filters 过滤条件
      * @param {Object} sorter 排序条件
      */
-    handleTableChange: function(pagination, filters, sorter) {
+    handleTableChange(pagination = {}, filters = {}, sorter = {}) {
       this.pagination.pageSize = pagination.pageSize;
       this.pagination.current = pagination.current;
       this.fetch();
@@ -123,9 +123,8 @@ export default {
     /**
      * @description 获取列表数据
      */
-    fetch: function() {
-      const self = this;
-      var postData = {
+    fetch() {
+      let postData = {
         start: this.pagination.current,
         limit: this.pagination.pageSize,
         dir: "desc",
@@ -134,16 +133,22 @@ export default {
 
       this.loading = true;
 
-      self.$axios
+      this.$axios
         .post(urls.MES_GET_OFFICE_PAGE_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
-          self.loading = false;
+          this.loading = false;
 
           // 更新列表数据
-          self.data = data.result;
-          self.pagination.total = data.totalCount;
+          this.data = data.result;
+          this.pagination.total = data.totalCount;
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            this.loading = false;
+          }, 1000);
         });
     },
 
@@ -151,9 +156,9 @@ export default {
      * @description 删除办事处
      * @param {Integar} id 办事处id
      */
-    deleteOffice: function(id) {
+    deleteOffice(id = 0) {
       const self = this;
-      var postData = {
+      let postData = {
         officeId: id,
         workerId: this.userID
       };
@@ -163,8 +168,8 @@ export default {
         onOk() {
           self.$axios
             .post(urls.MES_DELETE_OFFICE_URL, qs.stringify(postData))
-            .then(function(response) {
-              var data = response.data;
+            .then(response => {
+              let data = response.data;
 
               if (data.success) {
                 // 更新办事处列表信息
@@ -177,6 +182,9 @@ export default {
               } else {
                 self.$message.error("删除失败！");
               }
+            })
+            .catch(error => {
+              self.$message.error("网络错误！");
             });
         }
       });
@@ -190,7 +198,13 @@ export default {
      * @param {Integar} cityId 办事处所在城市id
      * @param {String} seriesNumber 办事处订单编码
      */
-    modifyOffice: function(id, name, provinceId, cityId, seriesNumber) {
+    modifyOffice(
+      id = 0,
+      name = "",
+      provinceId = 0,
+      cityId = 0,
+      seriesNumber = ""
+    ) {
       this.$router.push({
         path: paths.MES_OFFICE_MODIFY_PAGE_PATH,
         query: {

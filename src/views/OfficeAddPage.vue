@@ -5,7 +5,7 @@
  *   1. 地址选择器的数据双向绑定问题，暂时使用 onchange 事件解决，可以寻找更合适的解决办法
  * @Date: 2018-08-26 17:48:12 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 21:38:54
+ * @Last Modified time: 2018-10-05 20:02:05
  */
 
 <template>
@@ -67,7 +67,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "OfficeAddPage",
-  data: function() {
+  data() {
     return {
       name: "",
       number: "",
@@ -90,7 +90,7 @@ export default {
       this.options = curVal;
     }
   },
-  mounted: function() {
+  mounted() {
     // 设置地址数据
     this.options = this.provinceList;
   },
@@ -101,7 +101,7 @@ export default {
      * @description 更新地址数据
      * @param {Array} value 选中地址数组
      */
-    onChange: function(value) {
+    onChange(value = []) {
       this.provinceId = value[0];
       this.cityId = value[1];
     },
@@ -110,10 +110,9 @@ export default {
      * @description 加载城市列表
      * @param {Array} selectedOptions 选中选项
      */
-    loadData: function(selectedOptions) {
-      const self = this;
+    loadData(selectedOptions = []) {
       const targetOption = selectedOptions[selectedOptions.length - 1]; // 获取最后一次选中项
-      var postData = {
+      let postData = {
         workerId: 1,
         provinceId: targetOption.value
       };
@@ -122,32 +121,38 @@ export default {
       // 请求城市列表数据
       this.$axios
         .post(urls.MES_GET_CITY_LIST_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data,
+        .then(response => {
+          let data = response.data,
             cityList = [];
 
           if (data.success) {
             targetOption.loading = false;
 
             // 格式化数据
-            cityList = self.formatAddressList(data.data.addressList);
+            cityList = this.formatAddressList(data.data.addressList);
 
             // 更新下拉项数据
             targetOption.children = cityList;
-            self.options = [...self.options];
+            this.options = [...this.options];
           }
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            targetOption.loading = false;
+          }, 1000);
         });
     },
 
     /**
      * @description 添加办事处
      */
-    addOffice: function() {
+    addOffice() {
       // 阻止表单默认提交行为
       event.preventDefault();
 
       const self = this;
-      var postData = {
+      let postData = {
         officeName: this.name,
         seriesNumber: this.number,
         provinceId: this.provinceId,
@@ -155,7 +160,7 @@ export default {
         workerId: this.userID
       };
 
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
           self.$confirm({
@@ -164,8 +169,8 @@ export default {
               self.loading = true;
               self.$axios
                 .post(urls.MES_ADD_OFFICE_URL, qs.stringify(postData))
-                .then(function(response) {
-                  var data = response.data;
+                .then(response => {
+                  let data = response.data;
 
                   if (data.success) {
                     // 更新办事处列表信息
@@ -177,6 +182,12 @@ export default {
                     self.$message.error("添加失败！");
                     self.loading = false;
                   }
+                })
+                .catch(error => {
+                  self.$message.error("网络错误！");
+                  setTimeout(() => {
+                    self.loading = false;
+                  }, 1000);
                 });
             }
           });
@@ -189,16 +200,15 @@ export default {
      * @param {Object} originalData 原始数据
      * @return {Object} addressList 格式化后数据
      */
-    formatAddressList: function(originalData) {
-      var addressList = [];
+    formatAddressList(originalData = {}) {
+      let addressList = [];
 
-      originalData.forEach(function(item, index) {
-        var address = {
-          value: "",
-          label: ""
+      originalData.forEach((item, index) => {
+        let address = {
+          value: item.id.toString(),
+          label: item.name
         };
-        address.value = item.id.toString();
-        address.label = item.name;
+
         addressList.push(address);
       });
 

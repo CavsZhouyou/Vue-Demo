@@ -6,7 +6,7 @@
  *   3. 忘记密码功能待添加 
  * @Date: 2018-08-25 20:46:08 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 20:43:39
+ * @Last Modified time: 2018-10-05 19:34:41
  */
 
 <template>
@@ -17,7 +17,7 @@
                justify="center">
           <a-col :span="6">
             <div class="content">
-              <h2 class="title">后台管理系统</h2>
+              <h2 class="title">东方地毯后台管理系统</h2>
               <!-- 登录表单 -->
               <a-form @submit="login"
                       :autoFormCreate="(form)=>{this.form = form}">
@@ -58,7 +58,7 @@
       </a-layout-content>
       <!-- 网站信息 -->
       <a-layout-footer class="footer">
-        Copyright(c) 2005-2018 威软实验室 All Rights Reserved
+        Copyright(c) 2005-2018 东方地毯 All Rights Reserved
       </a-layout-footer>
     </a-layout>
   </div>
@@ -73,7 +73,7 @@ import * as paths from "../js/router_paths.js";
 
 export default {
   name: "LoginPage",
-  data: function() {
+  data() {
     return {
       userName: "",
       password: "",
@@ -89,43 +89,48 @@ export default {
      * @param {object} event
      * @returns
      */
-    login: function(event) {
+    login(event) {
       // 阻止表单默认提交行为
       event.preventDefault();
 
-      const self = this;
-
       // 表单验证
-      this.form.validateFields(function(error, values) {
+      this.form.validateFields((error, values) => {
         // 验证成功
         if (!error) {
-          self.loading = true;
+          this.loading = true;
 
-          var postData = {
-            number: self.userName,
-            password: hex_md5(self.password) // 密码使用md5加密
+          let postData = {
+            number: this.userName,
+            password: hex_md5(this.password) // 密码使用md5加密
           };
 
-          self.$axios
+          this.$axios
             .post(urls.MES_LOGIN_URL, qs.stringify(postData))
-            .then(function(response) {
-              var data = response.data;
+            .then(response => {
+              let data = response.data;
 
               if (data.success) {
-                self.$message.success("登录成功！");
+                this.$message.success("登录成功！");
 
                 // 写入用户信息到cookie
-                self.$cookie.setCookie("mes_user_name", data.data.name);
-                self.$cookie.setCookie("mes_user_id", data.data.id);
+                this.$cookie.setCookie("mes_user_name", data.data.name);
+                this.$cookie.setCookie("mes_user_id", data.data.id);
 
                 // 更新全局状态
-                self.updateUserData();
+                this.updateUserData();
 
                 // 跳转到首页
-                self.$router.push(paths.MES_HOME_PAGE_PATH);
+                this.$router.push(paths.MES_HOME_PAGE_PATH);
               } else {
-                self.$message.error(data.message);
+                this.$message.error(data.message);
+                this.loading = false;
               }
+            })
+            .catch(error => {
+              this.$message.error("网络错误！");
+              setTimeout(() => {
+                this.loading = false;
+              }, 1000);
             });
         }
       });

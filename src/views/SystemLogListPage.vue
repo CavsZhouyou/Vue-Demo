@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-08-26 22:01:23 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-08-29 20:22:43
+ * @Last Modified time: 2018-10-05 20:33:16
  */
 
 <template>
@@ -72,7 +72,7 @@ const columns = [
 
 export default {
   name: "SystemLogListPage",
-  data: function() {
+  data() {
     return {
       data: [],
       pagination: {
@@ -89,7 +89,7 @@ export default {
   computed: {
     ...mapGetters(["userID"])
   },
-  mounted: function() {
+  mounted() {
     // 获取列表内容
     this.fetch();
   },
@@ -100,7 +100,7 @@ export default {
      * @param {Object} filters 过滤条件
      * @param {Object} sorter 排序条件
      */
-    handleTableChange: function(pagination, filters, sorter) {
+    handleTableChange(pagination = {}, filters = {}, sorter = {}) {
       this.pagination.pageSize = pagination.pageSize;
       this.pagination.current = pagination.current;
       this.fetch();
@@ -109,9 +109,8 @@ export default {
     /**
      * @description 获取列表数据
      */
-    fetch: function() {
-      const self = this;
-      var postData = {
+    fetch() {
+      let postData = {
         start: this.pagination.current,
         sort: "operationTime",
         dir: "desc",
@@ -121,16 +120,22 @@ export default {
 
       this.loading = true;
 
-      self.$axios
+      this.$axios
         .post(urls.MES_GET_SYSTEM_LOG_URL, qs.stringify(postData))
-        .then(function(response) {
-          var data = response.data;
+        .then(response => {
+          let data = response.data;
 
-          self.loading = false;
+          this.loading = false;
 
           // 更新列表数据
-          self.data = data.result;
-          self.pagination.total = data.totalCount;
+          this.data = data.result;
+          this.pagination.total = data.totalCount;
+        })
+        .catch(error => {
+          this.$message.error("网络错误！");
+          setTimeout(() => {
+            this.loading = false;
+          }, 1000);
         });
     },
 
@@ -138,7 +143,7 @@ export default {
      * @description 查看参数
      * @param {Object} params 参数信息
      */
-    showParam: function(params) {
+    showParam(params = {}) {
       this.$info({
         title: "该条记录参数如下",
         content: params,
